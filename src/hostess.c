@@ -23,6 +23,11 @@ int hostess_check_for_a_free_conveyor_seat() {
     print_conveyor_belt(conveyor);
 
     while (TRUE) {
+        virtual_clock_t* virtual_clock = globals_get_virtual_clock();
+        if (virtual_clock->current_time >= virtual_clock->closing_time) {
+            return -1000;
+        }
+    
         for (int i=0; i<conveyor->_size; i++) {
             if (conveyor->_seats[i] == -1 && i !=0) {  // Atenção à regra! (-1 = livre, 0 = sushi_chef, 1 = customer)
                 print_virtual_time(globals_get_virtual_clock());
@@ -69,18 +74,21 @@ void* hostess_run() {
         3.  CUIDADO COM PROBLEMAS DE SINCRONIZAÇÃO!
         4.  NÃO REMOVA OS PRINTS!
     */
-    virtual_clock_t* virtual_clock = globals_get_virtual_clock();
     queue_t* queue = globals_get_queue();
-    int sushi_shop_fechado = FALSE;
+    virtual_clock_t* virtual_clock = globals_get_virtual_clock();
 
-    while (sushi_shop_fechado == FALSE) {  // Adicione a lógica para que o Hostess realize o fechamento do Sushi Shop!
+    while (virtual_clock->current_time < virtual_clock->closing_time) {  // Adicione a lógica para que o Hostess realize o fechamento do Sushi Shop!
         if (queue->_length > 0) {
             int seat = hostess_check_for_a_free_conveyor_seat();
-            hostess_guide_first_in_line_customer_to_conveyor_seat(seat);
+            if (seat != -1000) { /* */
+                hostess_guide_first_in_line_customer_to_conveyor_seat(seat);
+            }
         }
+
         msleep(3000/virtual_clock->clock_speed_multiplier);  // Não remova esse sleep!
     }
 
+    queue_finalize(queue);
     pthread_exit(NULL);
 }
 

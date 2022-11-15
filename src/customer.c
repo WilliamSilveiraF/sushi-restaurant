@@ -148,7 +148,7 @@ void customer_leave(customer_t* self) {
         NOTAS:
         1.  ESSA FUNÇÃO DEVERÁ REMOVER O CLIENTE DO ASSENTO DO CONVEYOR_BELT GLOBAL QUANDO EXECUTADA.
     */
-    if (self->_seat_position != -1) {
+    if (self->_seat_position != -1) { /* IF IS SITTING DOWN*/
         conveyor_belt_t* conveyor_belt = globals_get_conveyor_belt();
 
         pthread_mutex_lock(&conveyor_belt->_seats_mutex);

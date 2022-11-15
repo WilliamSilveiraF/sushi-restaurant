@@ -11,7 +11,7 @@ void* queue_run(void *arg) {
     /* NÃO PRECISA ALTERAR ESSA FUNÇÃO */
     queue_t* self = (queue_t*) arg;
     virtual_clock_t* clock = globals_get_virtual_clock();
-    while (TRUE) {
+    while (clock->current_time < clock->closing_time) {
         customer_t* customer = customer_init();
         queue_insert(self, customer);
         print_virtual_time(clock);
@@ -73,6 +73,7 @@ queue_t* queue_init() {
 void queue_finalize(queue_t* self) {
     /* NÃO PRECISA ALTERAR ESSA FUNÇÃO */
     struct queue_item *item = NULL;
+    
     for (int i=0; i<self->_length; i=i+1) {
         item = self->_first;
         self->_first = self->_first->_next;
