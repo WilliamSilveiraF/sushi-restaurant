@@ -35,7 +35,6 @@ void* customer_run(void* arg) {
             SAIR IMEDIATAMENTE DA ESTEIRA.
         8.  LEMBRE-SE DE TOMAR CUIDADO COM ERROS DE CONCORRÊNCIA!
     */ 
-    conveyor_belt_t* conveyor = globals_get_conveyor_belt();
     customer_t* self = (customer_t*) arg;
     virtual_clock_t* virtual_clock = globals_get_virtual_clock();
     /* INSIRA SUA LÓGICA AQUI */
@@ -66,7 +65,6 @@ void customer_pick_food(customer_t* self) {
         5.  NOTE QUE CLIENTES ADJACENTES DISPUTARÃO OS MESMOS PRATOS. CUIDADO COM PROBLEMAS DE SINCRONIZAÇÃO!
     */
     conveyor_belt_t* conveyor = globals_get_conveyor_belt();
-    virtual_clock_t* virtual_clock = globals_get_virtual_clock();
 
     pthread_mutex_lock(&conveyor->_food_slots_mutex);
     int next_sushi_position = self->_seat_position + 1 == conveyor->_size ? 0 : self->_seat_position + 1; /* PREVENT LAST SUSHI */
@@ -150,18 +148,20 @@ void customer_leave(customer_t* self) {
         NOTAS:
         1.  ESSA FUNÇÃO DEVERÁ REMOVER O CLIENTE DO ASSENTO DO CONVEYOR_BELT GLOBAL QUANDO EXECUTADA.
     */
-    conveyor_belt_t* conveyor_belt = globals_get_conveyor_belt();
-    pthread_mutex_lock(&conveyor_belt->_seats_mutex);
+    if (self->_seat_position != -1) {
+        conveyor_belt_t* conveyor_belt = globals_get_conveyor_belt();
 
-    conveyor_belt->_seats[self->_seat_position] = -1;
-    self->_seat_position = -1;
+        pthread_mutex_lock(&conveyor_belt->_seats_mutex);
 
-    print_virtual_time(globals_get_virtual_clock());
-    fprintf(stdout, GREEN "[INFO]" NO_COLOR " The customer %d left the conveyor!\n", self->_id);
+        conveyor_belt->_seats[self->_seat_position] = -1;
+        self->_seat_position = -1;
 
-    pthread_mutex_unlock(&conveyor_belt->_seats_mutex);
-    customer_finalize(self);
-    /* INSIRA SUA LÓGICA AQUI */
+        print_virtual_time(globals_get_virtual_clock());
+        fprintf(stdout, GREEN "[INFO]" NO_COLOR " The customer %d left the conveyor!\n", self->_id);
+
+        pthread_mutex_unlock(&conveyor_belt->_seats_mutex);
+        customer_finalize(self);
+    }
 }
 
 customer_t* customer_init() {
