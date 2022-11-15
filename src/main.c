@@ -34,6 +34,9 @@ int main (int argc, char** argv) {
     /* Join threads and free used memory */
     hostess_finalize(hostess);
     sushi_chef_finalize(sushi_chef);
+
+    sleep(3);
+    
     globals_finalize();
 
     return EXIT_SUCCESS;

@@ -4,8 +4,6 @@
 #include "sushi_chef.h"
 #include "globals.h"
 #include "menu.h"
-#include <semaphore.h>
-
 
 void* sushi_chef_run(void* arg) {
     /* 
@@ -20,9 +18,7 @@ void* sushi_chef_run(void* arg) {
     sushi_chef_t* self = (sushi_chef_t*) arg;
     virtual_clock_t* global_clock = globals_get_virtual_clock();
     conveyor_belt_t* conveyor_belt = globals_get_conveyor_belt();
-    sem_t* empty_slot_sem = global_get_empty_slots_sem();
 
-    sem_init(empty_slot_sem, 0, conveyor_belt->_size);
     sushi_chef_seat(self);
 
     while (global_clock->current_time < global_clock->closing_time) {
@@ -88,7 +84,7 @@ void sushi_chef_leave(sushi_chef_t* self) {
     fprintf(stdout, GREEN "[INFO]" NO_COLOR " Sushi Chef %d seated at conveyor->_seats[%d] stopped cooking and left the shop!\n", self->_id, self->_seat_position); 
     conveyor->_seats[0] = -1;
     self->_seat_position = -1;
-    sushi_chef_finalize(self);
+    /*sushi_chef_finalize(self);*/
     
     pthread_mutex_unlock(&conveyor->_seats_mutex);
 }
@@ -104,7 +100,6 @@ void sushi_chef_place_food(sushi_chef_t* self, enum menu_item dish) {
         5. OK NÃO REMOVA OS PRINTS
     */ 
     conveyor_belt_t* conveyor_belt = globals_get_conveyor_belt();
-    sem_t* empty_slot_sem = global_get_empty_slots_sem();
     virtual_clock_t* virtual_clock = globals_get_virtual_clock();
 
     print_virtual_time(globals_get_virtual_clock());

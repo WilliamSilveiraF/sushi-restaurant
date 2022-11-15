@@ -13,6 +13,7 @@ void* virtual_clock_run(void* arg) {
         if (self->current_time >= self->closing_time) {
             print_virtual_time(self);
             fprintf(stdout, GREEN "[INFO]" RED " RESTAURANT IS CLOSED!!!\n");
+            break;
         }
         self->current_time += 1;
         msleep(1000/self->clock_speed_multiplier);

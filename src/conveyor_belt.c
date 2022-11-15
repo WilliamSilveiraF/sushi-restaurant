@@ -11,7 +11,7 @@ void* conveyor_belt_run(void* arg) {
     /* NÃO PRECISA ALTERAR ESSA FUNÇÃO */
     conveyor_belt_t* self = (conveyor_belt_t*) arg;
     virtual_clock_t* virtual_clock = globals_get_virtual_clock();
-    while (TRUE) {
+    while (virtual_clock->current_time < virtual_clock->closing_time) {
         msleep(CONVEYOR_IDLE_PERIOD/virtual_clock->clock_speed_multiplier);
         print_virtual_time(globals_get_virtual_clock());
         fprintf(stdout, GREEN "[INFO]" NO_COLOR " Conveyor belt started moving...\n");
@@ -56,9 +56,12 @@ conveyor_belt_t* conveyor_belt_init(config_t* config) {
 
 void conveyor_belt_finalize(conveyor_belt_t* self) {
     /* NÃO PRECISA ALTERAR ESSA FUNÇÃO */
+    
     pthread_join(self->thread, NULL);
     pthread_mutex_destroy(&self->_seats_mutex);
     pthread_mutex_destroy(&self->_food_slots_mutex);
+    free(self->_seats);
+    free(self->_food_slots);
     free(self);
 }
 
